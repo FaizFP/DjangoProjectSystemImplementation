@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>System Implementation</title>
+  {% load static %}
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #5e6350;
+      color: white;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #5e6350;
+      padding: 20px 30px;
+      color: #f1f1f1;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h2 {
+      margin: 0;
+      font-weight: normal;
+      font-size: 25px;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .container {
+      display: flex;
+      height: calc(110vh - 80px); 
+      width: 100vw;
+    }
+
+    .sidebar {
+      width: 300px;
+      background-color: #454a37;
+      padding: 40px 20px;
+      margin-left: 0;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar h2 {
+      font-size: 16px;
+      font-weight: normal;
+      color: #f1f1f1;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .menu {
+      margin-top: 30px;
+      list-style: none;
+      padding: 0;
+    }
+
+    .menu li {
+      padding: 10px 15px;
+      background-color: #353a29;
+      margin-bottom: 5px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .menu li.active {
+      background-color: black;
+    }
+
+    .menu li:hover {
+      background-color: #333;
+    }
+
+    .dropdown-toggle {
+      position: relative;
+      color: inherit;
+      user-select: none;
+    }
+
+    .submenu {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 5px;
+      display: none;
+      background-color: #454a37;
+    }
+
+    .submenu li {
+      background-color:  #2e3226;
+      padding: 8px 15px;
+      margin-bottom: 2px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .submenu li:hover {
+      background-color: #788066;
+    }
+
+    .dropdown-toggle.open > .submenu {
+      display: block;
+    }
+
+    .content {
+      flex-grow: 5;
+      padding: 50px;
+      background-color:#5e6350;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      text-align: center;
+    }
+
+    .metrics-box {
+      background-color: #3e4333;
+      padding: 30px;
+      border-radius: 12px;
+      width: 450px;
+    }
+
+    .metrics-box select {
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: none;
+      background-color: #d1cbdf;
+      color: #333;
+    }
+
+    .metrics-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .metric-card {
+      background-color: #d9d9d9;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      width: 180px;
+      text-align: center;
+    }
+
+    .metric-card div.icon {
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>System Implementation</h2>
+    <div class="user">
+      <span>Tsana</span>
+      <img src="https://via.placeholder.com/32" alt="user" />
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <ul class="menu">
+        <li>
+          <a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a>
+        </li>
+        <li>
+          <span>Project <span style="float: right;">▼</span></span>
+          <ul class="submenu">
+            <li><a href="{% url 'project_form' %}" style="color: inherit; text-decoration: none; display: block;">Project</a></li>
+            <li><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none; display: block;">Nested Data</a></li>
+          </ul>
+        </li>
+        <li class="dropdown-toggle active" onclick="toggleDropdownMenu(this)">
+          <a href="{% url 'kinerja' %}" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <h1>Kinerja Perangkat Lunak</h1>
+
+      <div class="metrics-box">
+        <select>
+          <option selected disabled>Pilih Project</option>
+          {% for project in project_list %}
+            <option value="{{ project.id }}">{{ project.nama_project }}</option> <!-- ubah dari project.name ke project.nama_project -->
+          {% empty %}
+            <option disabled>Tidak ada project</option>
+          {% endfor %}
+        </select>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="icon">🕒</div>
+            <strong>Respon Time</strong><br />10 Ms
+          </div>
+          <div class="metric-card">
+            <div class="icon">📶</div>
+            <strong>Uptime</strong><br />90 %
+          </div>
+          <div class="metric-card">
+            <div class="icon">⚙️</div>
+            <strong>Usage</strong><br />2 %
+          </div>
+          <div class="metric-card">
+            <div class="icon">⚠️</div>
+            <strong>Error Rate</strong><br />2.2 %
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.dropdown-toggle').forEach(dropdown => {
+        dropdown.addEventListener('click', function () {
+          this.classList.toggle('open');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

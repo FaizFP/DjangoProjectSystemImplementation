@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Nested Data Lingkungan</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #4a4f3d;
+      color: white;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #5e6350;
+      padding: 20px 30px;
+      color: #f1f1f1;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h2 {
+      margin: 0;
+      font-weight: normal;
+      font-size: 25px;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .container {
+      display: flex;
+      height: calc(110vh - 80px);
+      width: 100vw;
+    }
+
+    .sidebar {
+      width: 300px;
+      background-color: #454a37;
+      padding: 40px 20px;
+      margin-left: 0;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .menu {
+      margin-top: 30px;
+      list-style: none;
+      padding: 0;
+    }
+
+    .menu li {
+      padding: 10px 15px;
+      background-color: #353a29;
+      margin-bottom: 5px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .menu li.active {
+      background-color: black;
+    }
+
+    .menu li:hover {
+      background-color: #333;
+    }
+
+    .dropdown-toggle {
+      position: relative;
+      color: inherit;
+      user-select: none;
+    }
+
+    .submenu {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 5px;
+      display: none;
+      background-color: #454a37;
+    }
+
+    .submenu li {
+      background-color: #2e3226;
+      padding: 8px 15px;
+      margin-bottom: 2px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .submenu li:hover {
+      background-color: #788066;
+    }
+
+    .dropdown-toggle.open> .submenu {
+      display: block;
+    }
+
+    .content {
+      flex-grow: 5;
+      padding: 30px;
+      background-color: #3f4430;
+      position: relative;
+      overflow-y: auto;
+      border-radius: 12px;
+    }
+
+    .tabs {
+      background-color: #aaa;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+
+    .tabs div {
+      padding: 5px 10px;
+      background-color: #ccc;
+      border-radius: 0;
+      color: black;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tabs .active {
+      background-color: #666;
+      color: white;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #f1f1f1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #5e6350;
+      border-radius: 10px;
+      overflow: hidden;
+      color: white;
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #888a7f;
+    }
+
+    th {
+      background-color: #454a37;
+    }
+
+    tr:hover {
+      background-color: #6b705c;
+      cursor: default;
+    }
+
+    .action-buttons button {
+      margin-right: 8px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      color: white;
+    }
+
+    .edit-btn {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+
+    .delete-btn {
+      background-color: #c0392b;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h2>System Implementation</h2>
+    <div class="user"></div>
+  </header>
+
+  <div class="container">
+    <div class="sidebar">
+      <ul class="menu">
+        <li>
+          <a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a>
+        </li>
+        <li class="dropdown-toggle open">
+          Project <span style="float: right;">▼</span>
+          <ul class="submenu" style="display: block;">
+            <li><a href="{% url 'project_form' %}" style="color: inherit; text-decoration: none; display: block;">Project</a>
+            </li>
+            <li><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none; display: block;">Nested Data</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="{% url 'kinerja' %}" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat
+            Lunak</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <div class="tabs">
+        <div><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none;">Project</a></div>
+        <div>Aktivitas Perangkat Lunak</div>
+        <div><a href="{% url 'nested_catatan' %}" style="color: inherit; text-decoration: none;">Catatan Pemeliharaan</a>
+        </div>
+        <div class="active">Data Lingkungan</div>
+        <div><a href="{% url 'nested_datatransaksi' %}" style="color: inherit; text-decoration: none;">Data Transaksi</a>
+        </div>
+      </div>
+
+      <h1>Data Lingkungan</h1>
+      <div style="margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center;">
+        <label for="filter-column" style="margin-right: 8px;">Tampilkan kolom: </label>
+        <select id="filter-column" onchange="filterTableColumn()">
+          <option value="all">Semua Kolom</option>
+          <option value="ram">RAM</option>
+          <option value="database">Database</option>
+          <option value="cpu">CPU</option>
+          <option value="os">OS</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="col-nama">Nama Project</th>
+            <th class="col-ram">RAM</th>
+            <th class="col-database">Database</th>
+            <th class="col-cpu">CPU</th>
+            <th class="col-os">OS</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lingkungan in data_lingkungan_list %}
+          <tr>
+            <td class="col-nama">{{ lingkungan.project.nama_project }}</td>
+            <td class="col-ram">{{ lingkungan.ram }}</td>
+            <td class="col-database">{{ lingkungan.database }}</td>
+            <td class="col-cpu">{{ lingkungan.cpu }}</td>
+            <td class="col-os">{{ lingkungan.os }}</td>
+            <td class="action-buttons">
+              <form method="POST" action="{% url 'delete_datalingkungan' lingkungan.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="delete-btn" onclick="return confirm('Yakin ingin menghapus data ini?')">♻️</button>
+              </form>
+              <a href="{% url 'edit_datalingkungan' lingkungan.id %}" class="edit-btn" style="text-decoration:none;">✏️</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" style="text-align: center;">Belum ada data lingkungan.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const dropdown = document.querySelector('.dropdown-toggle');
+      dropdown.addEventListener('click', function () {
+        this.classList.toggle('open');
+      });
+    });
+
+    function filterTableColumn() {
+      var val = document.getElementById('filter-column').value;
+      var allCols = ['ram','database','cpu','os'];
+      document.querySelectorAll('.col-nama').forEach(e=>e.style.display='');
+      allCols.forEach(function(col) {
+        document.querySelectorAll('.col-'+col).forEach(e=>e.style.display='');
+      });
+      if(val !== 'all') {
+        allCols.forEach(function(col) {
+          if(col !== val) {
+            document.querySelectorAll('.col-'+col).forEach(e=>e.style.display='none');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+
+</html>

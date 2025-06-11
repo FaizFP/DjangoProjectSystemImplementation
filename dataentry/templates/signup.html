@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up Page</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #5d634a;
+      display: flex;
+      height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    .left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 200px;
+      padding-right: 40px;
+      color: #ffffff;
+    }
+
+    .left h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .left p {
+      font-size: 1rem;
+      color: #e1e1e1;
+    }
+
+    .right {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding-right: 50px;
+    }
+
+    .signup-box {
+      background-color: #2d3128;
+      padding: 50px;
+      width: 400px;
+      border-radius: 10px;
+      color: white;
+    }
+
+    .signup-box h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .signup-box input[type="text"],
+    .signup-box input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    .input-container {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-container input {
+      width: 100%;
+      padding: 10px;
+      padding-left: 50px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .input-container .icon-left {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
+    .input-container .icon-right {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .checkbox-container {
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+
+    .checkbox-container input {
+      margin-right: 5px;
+    }
+
+    .signup-box button {
+      width: 100%;
+      background-color: black;
+      color: white;
+      padding: 10px;
+      border: none;
+      font-size: 1rem;
+      border-radius: 5px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left">
+      <h1>Create an account</h1>
+      <p>Fill your information below or register with your social account</p>
+    </div>
+
+    <div class="right">
+      <div class="signup-box">
+        <h2>SIGN UP</h2>
+
+        <form method="post" action="{% url 'signup' %}">
+          {% csrf_token %}
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+
+          <label for="password">Password</label>
+          <div class="input-container">
+            <span class="icon-left">
+              <img class="icon" src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png" alt="lock">
+            </span>
+            <input type="password" id="password" name="password" required>
+            <span class="icon-right">
+              <img class="icon" src="https://cdn-icons-png.flaticon.com/512/159/159604.png" alt="eye">
+            </span>
+          </div>
+
+          <div class="checkbox-container">
+            <input type="checkbox" required> Terms and condition
+          </div>
+
+          <button type="submit">Create</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
