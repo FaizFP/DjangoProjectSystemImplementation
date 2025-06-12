@@ -31,4 +31,6 @@ urlpatterns = [
     path('fetch_and_save_api_kinerja/', views.fetch_and_save_api_kinerja, name='fetch_and_save_api_kinerja'),
     path('get_kinerja_by_project/<str:project_id>/', views.get_kinerja_by_project, name='get_kinerja_by_project'),
     path('nested_aktivitas/', views.nested_aktivitas, name='nested_aktivitas'),
+    path('download/', views.download, name='download'),
+    path('download_pdf/<str:project_name>/', views.download_pdf, name='download_pdf'),
 ]

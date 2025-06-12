@@ -10,7 +10,10 @@ import requests
 import time
 from django.core.files.base import ContentFile
 from .models import DataTransaksi
-
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+import io
 
 def login_view(request):
     error = None
@@ -438,3 +441,21 @@ def get_kinerja_by_project(request, project_id):
 def nested_aktivitas(request):
     aktivitas_list = AktivitasImplementasi.objects.select_related('project').all()
     return render(request, 'nested_aktivitas.html', {'aktivitas_list': aktivitas_list})
+
+
+def download(request):
+    projects = Project.objects.all()
+    return render(request, 'download.html', {'projects': projects})
+
+def download_pdf(request, project_name):
+    project = Project.objects.filter(nama_project=project_name).first()
+    if not project:
+        return HttpResponse("Project tidak ditemukan.", status=404)
+    # Render HTML untuk PDF
+    html = render_to_string('pdf_template.html', {'project': project})
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{project.nama_project}.pdf"'
+    pisa_status = pisa.CreatePDF(io.BytesIO(html.encode('utf-8')), dest=response)
+    if pisa_status.err:
+        return HttpResponse('Terjadi error saat membuat PDF', status=500)
+    return response

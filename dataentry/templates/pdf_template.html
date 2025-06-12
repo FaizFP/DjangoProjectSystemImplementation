@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Project</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; color: #222; }
+        h2 { text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #888; padding: 10px; text-align: left; }
+        th { background: #ded5d4; }
+        .section-title { background: #5e6350; color: white; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h2>Laporan Project: {{ project.nama_project }}</h2>
+    <table>
+        <tr><th class="section-title" colspan="2">Data Project</th></tr>
+        <tr><th>Nama Project</th><td>{{ project.nama_project }}</td></tr>
+        <tr><th>Model</th><td>{{ project.model }}</td></tr>
+        <tr><th>Deskripsi</th><td>{{ project.deskripsi }}</td></tr>
+    </table>
+    {% if project.data_lingkungan.all %}
+    <table>
+        <tr><th class="section-title" colspan="4">Data Lingkungan</th></tr>
+        <tr><th>RAM</th><th>Database</th><th>CPU</th><th>OS</th></tr>
+        {% for lingkungan in project.data_lingkungan.all %}
+        <tr>
+            <td>{{ lingkungan.ram }}</td>
+            <td>{{ lingkungan.database }}</td>
+            <td>{{ lingkungan.cpu }}</td>
+            <td>{{ lingkungan.os }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if project.catatan_pemeliharaan.all %}
+    <table>
+        <tr><th class="section-title" colspan="2">Catatan Pemeliharaan</th></tr>
+        <tr><th>Rencana Pekerjaan</th><th>Kategori</th></tr>
+        {% for catatan in project.catatan_pemeliharaan.all %}
+        <tr>
+            <td>{{ catatan.suggest }}</td>
+            <td>{{ catatan.category }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</body>
+</html>
