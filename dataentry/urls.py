@@ -28,4 +28,7 @@ urlpatterns = [
     path('edit_datatransaksi/<int:transaksi_id>/', views.edit_datatransaksi, name='edit_datatransaksi'),
     path('edit_project/<str:project_id>/', views.edit_project, name='edit_project'),
     path('delete_project/<str:project_id>/', views.delete_project, name='delete_project'),
+    path('fetch_and_save_api_kinerja/', views.fetch_and_save_api_kinerja, name='fetch_and_save_api_kinerja'),
+    path('get_kinerja_by_project/<str:project_id>/', views.get_kinerja_by_project, name='get_kinerja_by_project'),
+    path('nested_aktivitas/', views.nested_aktivitas, name='nested_aktivitas'),
 ]

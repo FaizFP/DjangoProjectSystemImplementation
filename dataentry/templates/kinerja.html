@@ -197,7 +197,9 @@
 
     <div class="content">
       <h1>Kinerja Perangkat Lunak</h1>
-
+      <button id="fetch-kinerja-btn" style="margin-bottom: 24px; background: #788066; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">
+        Fetch Kinerja
+      </button>
       <div class="metrics-box">
         <select>
           <option selected disabled>Pilih Project</option>
@@ -211,19 +213,19 @@
         <div class="metrics-grid">
           <div class="metric-card">
             <div class="icon">🕒</div>
-            <strong>Respon Time</strong><br />10 Ms
+            <strong>Respon Time</strong><br /><span id="model-performance">-</span>
           </div>
           <div class="metric-card">
             <div class="icon">📶</div>
-            <strong>Uptime</strong><br />90 %
+            <strong>Uptime</strong><br /><span id="uptime-value">0 %</span>
           </div>
           <div class="metric-card">
             <div class="icon">⚙️</div>
-            <strong>Usage</strong><br />2 %
+            <strong>Usage</strong><br /><span id="evaluation-metrics">-</span>
           </div>
           <div class="metric-card">
-            <div class="icon">⚠️</div>
-            <strong>Error Rate</strong><br />2.2 %
+            <div class="icon">🚸</div>
+            <strong>Accuracy</strong><br /><span id="hyperparameters">-</span>
           </div>
         </div>
       </div>
@@ -237,6 +239,60 @@
           this.classList.toggle('open');
         });
       });
+      document.getElementById('fetch-kinerja-btn').onclick = async function () {
+        if (!confirm('Ambil dan simpan data kinerja dari API ke database lokal?')) return;
+        try {
+          const response = await fetch('/fetch_and_save_api_kinerja/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || ''
+            }
+          });
+          const data = await response.json();
+          if (data.success) {
+            alert(`Berhasil menambah ${data.created} data kinerja dari API ke database lokal.`);
+            location.reload();
+          } else {
+            alert('Gagal fetch/simpan: ' + (data.error || 'Error tidak diketahui.'));
+          }
+        } catch (err) {
+          alert('Gagal fetch/simpan data kinerja dari API');
+          console.error(err);
+        }
+      };
+      document.querySelector('.metrics-box select').addEventListener('change', async function() {
+        const projectId = this.value;
+        if (!projectId) return;
+        try {
+          const response = await fetch(`/get_kinerja_by_project/${projectId}/`);
+          const data = await response.json();
+          if (data.success) {
+            document.getElementById('model-performance').textContent = data.model_performance || '-';
+            document.getElementById('evaluation-metrics').textContent = data.evaluation_metrics || '-';
+            document.getElementById('hyperparameters').textContent = data.hyperparameters || '-';
+          } else {
+            document.getElementById('model-performance').textContent = '-';
+            document.getElementById('evaluation-metrics').textContent = '-';
+            document.getElementById('hyperparameters').textContent = '-';
+          }
+        } catch (err) {
+          document.getElementById('model-performance').textContent = '-';
+          document.getElementById('evaluation-metrics').textContent = '-';
+          document.getElementById('hyperparameters').textContent = '-';
+        }
+      });
+      // Animasi Uptime berjalan dari 0 ke 90%
+      function animateUptime(target) {
+        let value = 0;
+        const end = 90;
+        const el = document.getElementById('uptime-value');
+        const interval = setInterval(() => {
+          value++;
+          el.textContent = value + ' %';
+          if (value >= end) clearInterval(interval);
+        }, 20);
+      }
+      animateUptime();
     });
   </script>
 </body>

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
-from .models import Project, DataLingkungan, CatatanPemeliharaan
+from .models import Project, DataLingkungan, CatatanPemeliharaan, Kinerja, AktivitasImplementasi
 from .forms import ProjectForm, DataLingkunganForm, CatatanPemeliharaanForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
@@ -255,8 +255,11 @@ def fetch_and_save_api_projects(request):
                 created = 0
                 for item in data:
                     nama_project = item["project_detail"]["name"]
-                    model = item["model_type"]
+                    model = item["model_name"]
                     deskripsi = item["project_detail"]["description"]
+                    model_type = item.get("model_type", "")
+                    algorithm_used = item.get("algorithm_used", "")
+                    hyperparameters = item.get("hyperparameters", "")
                     # Cek apakah sudah ada di database
                     if not Project.objects.filter(nama_project=nama_project).exists():
                         Project.objects.create(
@@ -265,6 +268,21 @@ def fetch_and_save_api_projects(request):
                             deskripsi=deskripsi
                         )
                         created += 1
+                    # Simpan ke AktivitasImplementasi
+                    project = Project.objects.get(nama_project=nama_project)
+                    from .models import AktivitasImplementasi
+                    if not AktivitasImplementasi.objects.filter(
+                        project=project,
+                        model_type=model_type,
+                        algorithm_used=algorithm_used,
+                        hyperparameters=hyperparameters
+                    ).exists():
+                        AktivitasImplementasi.objects.create(
+                            project=project,
+                            model_type=model_type,
+                            algorithm_used=algorithm_used,
+                            hyperparameters=hyperparameters
+                        )
                 return JsonResponse({'success': True, 'created': created})
             else:
                 return JsonResponse({'success': False, 'error': 'Gagal fetch dari API'})
@@ -360,3 +378,63 @@ def delete_project(request, project_id):
         project.delete()
         return redirect('nested')
     return render(request, 'confirm_delete_project.html', {'project': project})
+
+
+def fetch_and_save_api_kinerja(request):
+    if request.method == 'POST':
+        try:
+            response = requests.get('https://arlellll.pythonanywhere.com/api-content/training-models/')
+            if response.status_code == 200:
+                data = response.json()
+                created = 0
+                for item in data:
+                    # Ambil nama project dari API
+                    nama_project = item["project_detail"]["name"]
+                    # Pastikan project sudah ada di database lokal
+                    project, _ = Project.objects.get_or_create(
+                        nama_project=nama_project,
+                        defaults={
+                            "model": item.get("model_type", ""),
+                            "deskripsi": item["project_detail"].get("description", "")
+                        }
+                    )
+                    # Cek apakah sudah ada data kinerja untuk project ini
+                    if not Kinerja.objects.filter(
+                        project=project,
+                        model_performance=item.get("model_performance", ""),
+                        evaluation_metrics=item.get("evaluation_metrics", ""),
+                        hyperparameters=item.get("hyperparameters", "")
+                    ).exists():
+                        Kinerja.objects.create(
+                            project=project,
+                            model_performance=item.get("model_performance", ""),
+                            evaluation_metrics=item.get("evaluation_metrics", ""),
+                            hyperparameters=item.get("hyperparameters", "")
+                        )
+                        created += 1
+                return JsonResponse({'success': True, 'created': created})
+            else:
+                return JsonResponse({'success': False, 'error': 'Gagal fetch dari API'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Metode tidak diizinkan'})
+
+
+def get_kinerja_by_project(request, project_id):
+    try:
+        kinerja = Kinerja.objects.filter(project__pk=project_id).first()
+        if kinerja:
+            return JsonResponse({
+                'success': True,
+                'model_performance': kinerja.model_performance,
+                'evaluation_metrics': kinerja.evaluation_metrics,
+                'hyperparameters': kinerja.hyperparameters,
+            })
+        else:
+            return JsonResponse({'success': False, 'error': 'Data tidak ditemukan'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+def nested_aktivitas(request):
+    aktivitas_list = AktivitasImplementasi.objects.select_related('project').all()
+    return render(request, 'nested_aktivitas.html', {'aktivitas_list': aktivitas_list})

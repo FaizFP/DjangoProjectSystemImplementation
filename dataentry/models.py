@@ -42,3 +42,12 @@ class Kinerja(models.Model):
 
     def __str__(self):
         return f'Kinerja {self.project.nama_project}'
+    
+class AktivitasImplementasi(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='aktivitas_implementasi')
+    model_type = models.CharField(max_length=255)
+    algorithm_used = models.CharField(max_length=255)
+    hyperparameters = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'Aktivitas {self.project.nama_project} - {self.model_type}'

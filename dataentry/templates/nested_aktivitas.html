@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Aktivitas Implementasi</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #4a4f3d;
+            color: white;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e6350;
+            padding: 20px 30px;
+            color: #f1f1f1;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        header h2 {
+            margin: 0;
+            font-weight: normal;
+            font-size: 25px;
+        }
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        .container {
+            display: flex;
+            height: calc(110vh - 80px);
+            width: 100vw;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #454a37;
+            padding: 40px 20px;
+            margin-left: 0;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .sidebar h2 {
+            font-size: 16px;
+            font-weight: normal;
+            color: #f1f1f1;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .menu {
+            margin-top: 30px;
+            list-style: none;
+            padding: 0;
+        }
+        .menu li {
+            padding: 10px 15px;
+            background-color: #353a29;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .menu li.active {
+            background-color: black;
+        }
+        .menu li:hover {
+            background-color: #333;
+        }
+        .dropdown-toggle {
+            position: relative;
+            color: inherit;
+            user-select: none;
+        }
+        .submenu {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 5px;
+            display: none;
+            background-color: #454a37;
+        }
+        .submenu li {
+            background-color: #2e3226;
+            padding: 8px 15px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .submenu li:hover {
+            background-color: #788066;
+        }
+        .dropdown-toggle.open>.submenu {
+            display: block;
+        }
+        .content {
+            flex-grow: 5;
+            padding: 30px;
+            background-color: #3f4430;
+            position: relative;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+        .tabs {
+            background-color: #aaa;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .tabs div {
+            padding: 5px 10px;
+            background-color: #ccc;
+            border-radius: 0;
+            color: black;
+            cursor: pointer;
+            user-select: none;
+        }
+        .tabs .active {
+            background-color: #666;
+            color: white;
+        }
+        h3 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #f1f1f1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #5e6350;
+            border-radius: 10px;
+            overflow: hidden;
+            color: white;
+        }
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #888a7f;
+        }
+        th {
+            background-color: #454a37;
+        }
+        tr:hover {
+            background-color: #6b705c;
+            cursor: default;
+        }
+        .action-buttons button {
+            margin-right: 8px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+        }
+        .edit-btn {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .delete-btn {
+            background-color: #c0392b;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                min-height: auto;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-radius: 0;
+                padding: 20px 15px;
+            }
+            .content {
+                width: 90%;
+                margin: 20px auto;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>System Implementation</h2>
+        <div class="user">
+            <!-- Gambar/nama user opsional -->
+        </div>
+    </header>
+    <div class="container">
+        <div class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a></li>
+                <li class="dropdown-toggle open">
+                    Project <span style="float: right;">▼</span>
+                    <ul class="submenu" style="display: block;">
+                        <li><a href="#" style="color: inherit; text-decoration: none; display: block;">Project</a></li>
+                        <li class="active"><a href="#" style="color: inherit; text-decoration: none; display: block;">Nested Data</a></li>
+                    </ul>
+                </li>
+                <li><a href="#" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a></li>
+            </ul>
+        </div>
+        <div class="content">
+            <div class="tabs">
+                <div><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none;">Project</a></div>
+                <div class="active">Aktivitas Perangkat Lunak</div>
+                <div><a href="{% url 'nested_catatan' %}" style="color: inherit; text-decoration: none;">Catatan Pemeliharaan</a></div>
+                <div><a href="{% url 'nested_lingkungan' %}" style="color: inherit; text-decoration: none;">Data Lingkungan</a></div>
+                <div><a href="{% url 'nested_datatransaksi' %}" style="color: inherit; text-decoration: none;">Data Transaksi</a></div>
+            </div>
+            <h3>Aktivitas Implementasi</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-nama">Nama Project</th>
+                        <th class="col-model_type">Model Type</th>
+                        <th class="col-algorithm_used">Algorithm Used</th>
+                        <th class="col-hyperparameters">Hyperparameters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for aktivitas in aktivitas_list %}
+                    <tr>
+                        <td class="col-nama">{{ aktivitas.project.nama_project }}</td>
+                        <td class="col-model_type">{{ aktivitas.model_type }}</td>
+                        <td class="col-algorithm_used">{{ aktivitas.algorithm_used }}</td>
+                        <td class="col-hyperparameters">{{ aktivitas.hyperparameters }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Belum ada data aktivitas implementasi.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
