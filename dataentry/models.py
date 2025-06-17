@@ -1,7 +1,8 @@
 from django.db import models
 
 class Project(models.Model):
-    nama_project = models.CharField(max_length=255, primary_key=True)  # jadi PK, otomatis unik dan not null
+    id_project = models.AutoField(primary_key=True)
+    nama_project = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
     deskripsi = models.TextField()
     
@@ -37,8 +38,7 @@ class DataTransaksi(models.Model):
 class Kinerja(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='kinerja')
     model_performance = models.CharField(max_length=255)
-    evaluation_metrics = models.CharField(max_length=255)
-    hyperparameters = models.CharField(max_length=255)
+    
 
     def __str__(self):
         return f'Kinerja {self.project.nama_project}'

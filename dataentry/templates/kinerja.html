@@ -1,299 +1,268 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>System Implementation</title>
-  {% load static %}
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #5e6350;
-      color: white;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #5e6350;
-      padding: 20px 30px;
-      color: #f1f1f1;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h2 {
-      margin: 0;
-      font-weight: normal;
-      font-size: 25px;
-    }
-
-    .user {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .user img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-    }
-
-    .container {
-      display: flex;
-      height: calc(110vh - 80px); 
-      width: 100vw;
-    }
-
-    .sidebar {
-      width: 300px;
-      background-color: #454a37;
-      padding: 40px 20px;
-      margin-left: 0;
-      border-radius: 10px;
-      flex-shrink: 0;
-    }
-
-    .sidebar h2 {
-      font-size: 16px;
-      font-weight: normal;
-      color: #f1f1f1;
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    .menu {
-      margin-top: 30px;
-      list-style: none;
-      padding: 0;
-    }
-
-    .menu li {
-      padding: 10px 15px;
-      background-color: #353a29;
-      margin-bottom: 5px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    .menu li.active {
-      background-color: black;
-    }
-
-    .menu li:hover {
-      background-color: #333;
-    }
-
-    .dropdown-toggle {
-      position: relative;
-      color: inherit;
-      user-select: none;
-    }
-
-    .submenu {
-      list-style: none;
-      padding-left: 0;
-      margin-top: 5px;
-      display: none;
-      background-color: #454a37;
-    }
-
-    .submenu li {
-      background-color:  #2e3226;
-      padding: 8px 15px;
-      margin-bottom: 2px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .submenu li:hover {
-      background-color: #788066;
-    }
-
-    .dropdown-toggle.open > .submenu {
-      display: block;
-    }
-
-    .content {
-      flex-grow: 5;
-      padding: 50px;
-      background-color:#5e6350;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: start;
-      text-align: center;
-    }
-
-    .metrics-box {
-      background-color: #3e4333;
-      padding: 30px;
-      border-radius: 12px;
-      width: 450px;
-    }
-
-    .metrics-box select {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      background-color: #d1cbdf;
-      color: #333;
-    }
-
-    .metrics-grid {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .metric-card {
-      background-color: #d9d9d9;
-      color: black;
-      padding: 20px;
-      border-radius: 10px;
-      width: 180px;
-      text-align: center;
-    }
-
-    .metric-card div.icon {
-      font-size: 22px;
-      margin-bottom: 5px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Kinerja Perangkat Lunak</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #4a4f3d;
+            color: white;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #5e6350;
+            padding: 20px 30px;
+            color: #f1f1f1;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        header h2 {
+            margin: 0;
+            font-weight: normal;
+            font-size: 25px;
+        }
+        .container {
+            display: flex;
+            height: calc(100vh - 80px); /* Disesuaikan agar pas */
+            width: 100%;
+        }
+        .sidebar {
+            width: 300px;
+            background-color: #454a37;
+            padding: 40px 20px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .menu {
+            margin-top: 30px;
+            list-style: none;
+            padding: 0;
+        }
+        .menu li {
+            padding: 10px 15px;
+            background-color: #353a29;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .menu li a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+        }
+        .menu li.active {
+            background-color: black;
+        }
+        .content {
+            flex-grow: 1; /* Diubah agar mengisi sisa ruang */
+            padding: 50px;
+            background-color:#5e6350;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+            text-align: center;
+            overflow-y: auto;
+        }
+        .metrics-box {
+            background-color: #3e4333;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px; /* Lebar maksimal */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .metrics-box select {
+            margin-bottom: 25px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            background-color: #d1cbdf;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .metrics-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .metric-card {
+            background-color: #d9d9d9;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            width: 180px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .metric-card .icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .metric-card strong {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #555;
+            display: block;
+            min-height: 30px;
+        }
+        .metric-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+            min-height: 30px;
+            color: #1a1a1a;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h2>System Implementation</h2>
-    <div class="user">
-      <span>Tsana</span>
-      <img src="https://via.placeholder.com/32" alt="user" />
-    </div>
-  </header>
+    <header>
+        <h2>System Implementation</h2>
+        </header>
 
-  <div class="container">
-    <div class="sidebar">
-      <ul class="menu">
-        <li>
-          <a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a>
-        </li>
-        <li>
-          <span>Project <span style="float: right;">▼</span></span>
-          <ul class="submenu">
-            <li><a href="{% url 'project_form' %}" style="color: inherit; text-decoration: none; display: block;">Project</a></li>
-            <li><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none; display: block;">Nested Data</a></li>
-          </ul>
-        </li>
-        <li class="dropdown-toggle active" onclick="toggleDropdownMenu(this)">
-          <a href="{% url 'kinerja' %}" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a>
-        </li>
-      </ul>
-    </div>
-
-    <div class="content">
-      <h1>Kinerja Perangkat Lunak</h1>
-      <button id="fetch-kinerja-btn" style="margin-bottom: 24px; background: #788066; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">
-        Fetch Kinerja
-      </button>
-      <div class="metrics-box">
-        <select>
-          <option selected disabled>Pilih Project</option>
-          {% for project in project_list %}
-            <option value="{{ project.id }}">{{ project.nama_project }}</option> <!-- ubah dari project.name ke project.nama_project -->
-          {% empty %}
-            <option disabled>Tidak ada project</option>
-          {% endfor %}
-        </select>
-
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="icon">🕒</div>
-            <strong>Respon Time</strong><br /><span id="model-performance">-</span>
-          </div>
-          <div class="metric-card">
-            <div class="icon">📶</div>
-            <strong>Uptime</strong><br /><span id="uptime-value">0 %</span>
-          </div>
-          <div class="metric-card">
-            <div class="icon">⚙️</div>
-            <strong>Usage</strong><br /><span id="evaluation-metrics">-</span>
-          </div>
-          <div class="metric-card">
-            <div class="icon">🚸</div>
-            <strong>Accuracy</strong><br /><span id="hyperparameters">-</span>
-          </div>
+    <div class="container">
+        <div class="sidebar">
+            <ul class="menu">
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'nested' %}">Nested Data</a></li>
+                <li class="active"><a href="{% url 'kinerja' %}">Kinerja Perangkat Lunak</a></li>
+                <li><a href="{% url 'download' %}">Download</a></li>
+            </ul>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <script>
+        <div class="content">
+            <h1>Kinerja Perangkat Lunak</h1>
+            <button id="fetch-kinerja-btn" style="margin-bottom: 24px; background: #788066; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;">
+                Fetch Kinerja dari API
+            </button>
+            <div class="metrics-box">
+                <select id="project-selector">
+                    <option value="">Pilih Project</option>
+                    {% for project in project_list %}
+                        <option value="{{ project.id_project }}">{{ project.nama_project }}</option>
+                    {% empty %}
+                        <option disabled>Tidak ada project lokal</option>
+                    {% endfor %}
+                </select>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="icon">🕒</div>
+                        <strong>Respon Time</strong>
+                        <div class="value" id="respon-time-value">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon">⚙️</div>
+                        <strong>CPU Usage</strong>
+                        <div class="value" id="usage-value">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon">🎯</div>
+                        <strong>Model Performance</strong>
+                        <div class="value" id="model-performance-value">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="icon">📶</div>
+                        <strong>Uptime</strong>
+                        <div class="value" id="uptime-value">0 %</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
     document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.dropdown-toggle').forEach(dropdown => {
-        dropdown.addEventListener('click', function () {
-          this.classList.toggle('open');
-        });
-      });
-      document.getElementById('fetch-kinerja-btn').onclick = async function () {
-        if (!confirm('Ambil dan simpan data kinerja dari API ke database lokal?')) return;
-        try {
-          const response = await fetch('/fetch_and_save_api_kinerja/', {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || ''
+        // --- FUNGSI UNTUK ANIMASI ANGKA ---
+        function animateValue(elementId, start, end, duration, unit = '') {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentValue = Math.floor(progress * (end - start) + start);
+                element.textContent = currentValue + unit;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Animasi Uptime awal saat halaman dimuat
+        animateValue('uptime-value', 0, 98, 2000, ' %');
+
+        // --- EVENT LISTENER UNTUK DROPDOWN PROJECT ---
+        document.getElementById('project-selector').addEventListener('change', async function() {
+            const projectId = this.value;
+            
+            const responTimeEl = document.getElementById('respon-time-value');
+            const usageEl = document.getElementById('usage-value');
+            const modelPerfEl = document.getElementById('model-performance-value');
+
+            // Reset semua nilai jika tidak ada project dipilih
+            if (!projectId) {
+                responTimeEl.textContent = '-';
+                usageEl.textContent = '-';
+                modelPerfEl.textContent = '-';
+                return;
             }
-          });
-          const data = await response.json();
-          if (data.success) {
-            alert(`Berhasil menambah ${data.created} data kinerja dari API ke database lokal.`);
-            location.reload();
-          } else {
-            alert('Gagal fetch/simpan: ' + (data.error || 'Error tidak diketahui.'));
-          }
-        } catch (err) {
-          alert('Gagal fetch/simpan data kinerja dari API');
-          console.error(err);
-        }
-      };
-      document.querySelector('.metrics-box select').addEventListener('change', async function() {
-        const projectId = this.value;
-        if (!projectId) return;
-        try {
-          const response = await fetch(`/get_kinerja_by_project/${projectId}/`);
-          const data = await response.json();
-          if (data.success) {
-            document.getElementById('model-performance').textContent = data.model_performance || '-';
-            document.getElementById('evaluation-metrics').textContent = data.evaluation_metrics || '-';
-            document.getElementById('hyperparameters').textContent = data.hyperparameters || '-';
-          } else {
-            document.getElementById('model-performance').textContent = '-';
-            document.getElementById('evaluation-metrics').textContent = '-';
-            document.getElementById('hyperparameters').textContent = '-';
-          }
-        } catch (err) {
-          document.getElementById('model-performance').textContent = '-';
-          document.getElementById('evaluation-metrics').textContent = '-';
-          document.getElementById('hyperparameters').textContent = '-';
-        }
-      });
-      // Animasi Uptime berjalan dari 0 ke 90%
-      function animateUptime(target) {
-        let value = 0;
-        const end = 90;
-        const el = document.getElementById('uptime-value');
-        const interval = setInterval(() => {
-          value++;
-          el.textContent = value + ' %';
-          if (value >= end) clearInterval(interval);
-        }, 20);
-      }
-      animateUptime();
+
+            // === LOGIKA UNTUK DATA TAMPILAN ACAK ===
+            const randomResponTime = Math.floor(Math.random() * 451) + 50; // Angka antara 50-500
+            const randomUsage = Math.floor(Math.random() * 71) + 20;      // Angka antara 20-90
+            
+            animateValue('respon-time-value', 0, randomResponTime, 800, ' ms');
+            animateValue('usage-value', 0, randomUsage, 1200, ' %');
+            
+            // === LOGIKA UNTUK AMBIL DATA ASLI DARI DATABASE ===
+            try {
+                const response = await fetch(`/get_kinerja_by_project/${projectId}/`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Tampilkan data 'model_performance' dari database ke kartu yang sesuai
+                    modelPerfEl.textContent = data.model_performance || '-';
+                } else {
+                    modelPerfEl.textContent = '-';
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+                modelPerfEl.textContent = 'Error';
+            }
+        });
+
+        // Event listener untuk tombol fetch (jika masih diperlukan)
+        document.getElementById('fetch-kinerja-btn').onclick = async function () { 
+            if (!confirm('Ambil dan simpan data kinerja dari API ke database lokal?')) return;
+            try {
+                const response = await fetch('/fetch_and_save_api_kinerja/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert(`Berhasil menambah ${data.created} data kinerja.`);
+                    location.reload();
+                } else {
+                    alert('Gagal: ' + (data.error || 'Error tidak diketahui.'));
+                }
+            } catch (err) {
+                alert('Gagal memanggil API.');
+                console.error(err);
+            }
+        };
     });
-  </script>
+    </script>
 </body>
 </html>

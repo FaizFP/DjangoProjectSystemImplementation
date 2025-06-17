@@ -278,9 +278,9 @@ button#fetch-api-btn {
             <td class="col-model">{{ project.model }}</td>
             <td class="col-deskripsi">{{ project.deskripsi }}</td>
             <td class="action-buttons">
-              {% if project.is_local %}
-                <a href="{% url 'edit_project' project.nama_project %}" class="edit-btn" style="background-color: #888; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; cursor: pointer;">✏️</a>
-                <form action="{% url 'delete_project' project.nama_project %}" method="post" style="display:inline;">
+              {% if project.is_local and project.id_project %}
+                <a href="{% url 'edit_project' project.id_project %}" class="edit-btn" style="background-color: #888; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; cursor: pointer;">✏️</a>
+                <form action="{% url 'delete_project' project.id_project %}" method="post" style="display:inline;">
                   {% csrf_token %}
                   <button type="submit" class="delete-btn" style="background-color: #c0392b; color: white; padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer;" onclick="return confirm('Yakin ingin menghapus project ini?');">♻️</button>
                 </form>
@@ -297,6 +297,10 @@ button#fetch-api-btn {
           {% endfor %}
         </tbody>
       </table>
+      <div style="margin-top: 20px; text-align: center;">
+                <a href="{% url 'project_form' %}" class="add-btn"
+                    style="background: #788066; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold;">Add</a>
+      </div>
     </div>
   </div>
 

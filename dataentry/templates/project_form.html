@@ -161,6 +161,22 @@
     .error li {
       color: white;
     }
+
+    .btn {
+      display: inline-block;
+      background-color: #ded5d4;
+      color: black;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #c0b6b5;
+    }
   </style>
 </head>
 <body>
@@ -211,6 +227,10 @@
         {% endfor %}
         <button type="submit">NEXT</button>
       </form>
+
+      {% if project %}
+        <a href="{% url 'data_lingkungan' project.id_project %}" class="btn" style="margin-top:20px;display:inline-block;">Lanjut ke Data Lingkungan</a>
+      {% endif %}
     </div>
   </div>
 

@@ -214,7 +214,7 @@
 
     <div class="form-container">
       <h3>Catatan Pemeliharaan</h3>
-      <form method="POST" action="#">
+      <form method="POST" action="">
         {% csrf_token %}
         {{ form.as_p }}
         
@@ -232,7 +232,7 @@
 
         <label for="status">Status</label>
         <select id="status" name="status">
-          <option value="on going">On Going</option>
+          <option value="on going">OnGoing</option>
           <option value="pending">Pending</option>
           <option value="done">Done</option>
         </select>

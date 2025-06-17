@@ -14,6 +14,21 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
 import io
+from rest_framework import viewsets
+from .models import Project
+from .serializers import (
+    ProjectSerializer,
+    DataLingkunganSerializer,
+    CatatanPemeliharaanSerializer,
+    DataTransaksiSerializer,
+    KinerjaSerializer,
+    AktivitasImplementasiSerializer,
+)
+from rest_framework.renderers import JSONRenderer
+from rest_framework import generics
+from .serializers import ProjectDetailSerializer
+from django.http import HttpResponseBadRequest
+from django.contrib.auth.decorators import login_required
 
 def login_view(request):
     error = None
@@ -28,10 +43,16 @@ def login_view(request):
             error = 'Invalid username or password'
     return render(request, 'login.html', {'error': error})
 
+@login_required
+def user_profile_view(request):
+    # Django secara otomatis menyediakan variabel 'user' ke template
+    # jika pengguna sudah login.
+    return render(request, 'user_profile.html')
+
 
 def dashboard_view(request):
     # Ambil status unik
-    status_list = ['OnGoing', 'Pending', 'Done']
+    status_list = ['on going', 'Pending', 'Done']
     status_count = {}
     for status in status_list:
         status_count[status] = CatatanPemeliharaan.objects.filter(status__iexact=status).values('project').distinct().count()
@@ -89,7 +110,8 @@ def project_form_view(request):
         form = ProjectForm(request.POST)
         if form.is_valid():
             projek = form.save()
-            return redirect('data_lingkungan', project_id=projek.nama_project)  # ✅ PAKAI id # ubah dari projek.id ke projek.nama_project karena dalem model pakai nama_project buat pk nya
+            # Redirect ke data_lingkungan dengan id_project (PK, integer)
+            return redirect('data_lingkungan', project_id=projek.id_project)
         else:
             print(form.errors)
     else:
@@ -136,7 +158,7 @@ def view_catatan_pemeliharaan(request,project_id):
             stakeholder=stakeholder,
             role=role
         )
-        return redirect('nested_catatan')
+        return redirect('sequential_datatransaksi', project_id=project.id_project)
     return render(request, 'catatanpemeliharaan.html', {'project': project})
 
 
@@ -177,21 +199,19 @@ def signup_view(request):
             error = "User with this email already exists."
             return render(request, 'signup.html', {'error': error})
 
-        user = User.objects.create_user(username=email, email=email, password=password, first_name=name)
+        user = User.objects.create_user(username=name, email=email, password=password, first_name=name)
         user.save()
         return redirect('login')
     return render(request, 'signup.html')
 
 
 def delete_project(request, project_id):
-    if request.method == 'DELETE':
-        try:
-            project = Project.objects.get(pk=project_id)
-            project.delete()
-            return JsonResponse({'success': True})
-        except Project.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Project tidak ditemukan.'})
-    return JsonResponse({'success': False, 'error': 'Metode tidak diizinkan.'})
+    if request.method == 'POST':
+        project = get_object_or_404(Project, pk=project_id)
+        project.delete()
+        return redirect('nested')  # redirect ke halaman daftar project
+    else:
+        return redirect('nested')
 
 
 def nested_project_view(request):
@@ -202,6 +222,7 @@ def nested_project_view(request):
     # Masukkan data lokal ke list
     for p in projects:
         all_projects.append({
+            "id_project": p.id_project,  # pastikan id_project ada
             "nama_project": p.nama_project,
             "model": p.model,
             "deskripsi": p.deskripsi,
@@ -216,9 +237,9 @@ def nested_project_view(request):
             for item in data:
                 all_projects.append({
                     "nama_project": item["project_detail"]["name"],
-                    "model": item["model_type"],  # samakan key dengan lokal
+                    "model": item["model_type"],
                     "deskripsi": item["project_detail"]["description"],
-                    "is_local": False,  # penanda data API
+                    "is_local": True,  # penanda data API
                 })
     except Exception:
         pass
@@ -376,11 +397,12 @@ def edit_project(request, project_id):
     return render(request, 'edit_project.html', {'project': project})
 
 def delete_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
     if request.method == 'POST':
+        project = get_object_or_404(Project, pk=project_id)
         project.delete()
+        return redirect('nested')  # redirect ke halaman daftar project
+    else:
         return redirect('nested')
-    return render(request, 'confirm_delete_project.html', {'project': project})
 
 
 def fetch_and_save_api_kinerja(request):
@@ -405,14 +427,12 @@ def fetch_and_save_api_kinerja(request):
                     if not Kinerja.objects.filter(
                         project=project,
                         model_performance=item.get("model_performance", ""),
-                        evaluation_metrics=item.get("evaluation_metrics", ""),
-                        hyperparameters=item.get("hyperparameters", "")
+                        
                     ).exists():
                         Kinerja.objects.create(
                             project=project,
                             model_performance=item.get("model_performance", ""),
-                            evaluation_metrics=item.get("evaluation_metrics", ""),
-                            hyperparameters=item.get("hyperparameters", "")
+                            
                         )
                         created += 1
                 return JsonResponse({'success': True, 'created': created})
@@ -430,8 +450,7 @@ def get_kinerja_by_project(request, project_id):
             return JsonResponse({
                 'success': True,
                 'model_performance': kinerja.model_performance,
-                'evaluation_metrics': kinerja.evaluation_metrics,
-                'hyperparameters': kinerja.hyperparameters,
+                
             })
         else:
             return JsonResponse({'success': False, 'error': 'Data tidak ditemukan'})
@@ -448,14 +467,213 @@ def download(request):
     return render(request, 'download.html', {'projects': projects})
 
 def download_pdf(request, project_name):
-    project = Project.objects.filter(nama_project=project_name).first()
-    if not project:
+    # Gunakan prefetch_related untuk mengambil semua data terkait dalam satu query besar
+    # Ini jauh lebih efisien daripada query satu per satu
+    try:
+        project = Project.objects.prefetch_related(
+            'data_lingkungan', 
+            'catatan_pemeliharaan', 
+            'data_transaksi', 
+            'kinerja', 
+            'aktivitas_implementasi'
+        ).get(nama_project=project_name)
+    except Project.DoesNotExist:
         return HttpResponse("Project tidak ditemukan.", status=404)
-    # Render HTML untuk PDF
-    html = render_to_string('pdf_template.html', {'project': project})
+
+    # Siapkan context dengan semua data yang sudah diambil
+    context = {
+        'project': project,
+        'data_lingkungan_list': project.data_lingkungan.all(),
+        'catatan_pemeliharaan_list': project.catatan_pemeliharaan.all(),
+        'data_transaksi_list': project.data_transaksi.all(),
+        'kinerja_list': project.kinerja.all(),
+        'aktivitas_list': project.aktivitas_implementasi.all(),
+    }
+    
+    # Render HTML untuk PDF menggunakan context yang sudah lengkap
+    html = render_to_string('pdf_template.html', context)
+    
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{project.nama_project}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="Laporan - {project.nama_project}.pdf"'
+    
     pisa_status = pisa.CreatePDF(io.BytesIO(html.encode('utf-8')), dest=response)
+    
     if pisa_status.err:
         return HttpResponse('Terjadi error saat membuat PDF', status=500)
+    
     return response
+
+
+
+def add_catatanpemeliharaan(request):
+    projects = Project.objects.all()
+    if request.method == 'POST':
+        nama_project = request.POST.get('nama_project')
+        project = Project.objects.get(nama_project=nama_project)
+        suggest = request.POST.get('rencana_pekerjaan')
+        category = request.POST.get('category')
+        status = request.POST.get('status')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        stakeholder = request.POST.get('stakeholder')
+        role = request.POST.get('role')
+        CatatanPemeliharaan.objects.create(
+            project=project,
+            suggest=suggest,
+            category=category,
+            status=status,
+            start_date=start_date or None,
+            end_date=end_date or None,
+            stakeholder=stakeholder,
+            role=role
+        )
+        return redirect('nested_catatan')
+    return render(request, 'add_catatanpemeliharaan.html', {'projects': projects})
+
+def add_datalingkungan(request):
+    projects = Project.objects.all()
+
+    if request.method == 'POST':
+        nama_project = request.POST.get('nama_project')
+        project = Project.objects.get(nama_project=nama_project)
+
+        os = request.POST.get('os')
+        cpu = request.POST.get('cpu')
+        ram = request.POST.get('ram')
+        database = request.POST.get('database')
+
+        DataLingkungan.objects.create(
+            project=project,
+            os=os,
+            cpu=cpu,
+            ram=ram,
+            database=database
+        )
+
+        return redirect('nested_lingkungan')
+
+    return render(request, 'add_datalingkungan.html', {'projects': projects})
+
+def sequential_datatransaksi_view(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    
+    if request.method == 'POST':
+        deskripsi_data = request.POST.get('deskripsi_data')
+        input_file = request.FILES.get('input_file')
+
+        DataTransaksi.objects.create(
+            project=project,
+            deskripsi_data=deskripsi_data,
+            input_file=input_file
+        )
+        
+        # === INI BARIS YANG ANDA UBAH ===
+        # Arahkan ke halaman daftar semua transaksi.
+        # Pastikan nama URL untuk nested_transaksi.html Anda adalah 'nested_transaksi'.
+        return redirect('nested_datatransaksi' )
+
+    # Bagian ini untuk menampilkan halaman form (tidak perlu diubah)
+    data_transaksi_list = DataTransaksi.objects.filter(project=project)
+    context = {
+        'project': project,
+        'data_transaksi_list': data_transaksi_list,
+    }
+    return render(request, 'sequential_datatransaksi.html', context)
+
+def edit_aktivitas(request, aktivitas_id):
+    # Ambil objek yang akan di-edit, atau tampilkan 404 jika tidak ada
+    aktivitas = get_object_or_404(AktivitasImplementasi, pk=aktivitas_id)
+
+    # Jika form di-submit (method POST)
+    if request.method == 'POST':
+        # Ambil data baru dari form
+        aktivitas.model_type = request.POST.get('model_type')
+        aktivitas.algorithm_used = request.POST.get('algorithm_used')
+        aktivitas.hyperparameters = request.POST.get('hyperparameters')
+        
+        # Simpan perubahan ke database
+        aktivitas.save()
+        
+        # Arahkan kembali ke halaman daftar
+        return redirect('nested_aktivitas')
+    
+    # Jika method GET, tampilkan form dengan data yang sudah ada
+    context = {
+        'aktivitas': aktivitas
+    }
+    return render(request, 'edit_aktivitas.html', context)
+
+def delete_aktivitas(request, aktivitas_id):
+    # Ambil objek yang akan dihapus
+    aktivitas = get_object_or_404(AktivitasImplementasi, pk=aktivitas_id)
+    
+    # Lakukan delete hanya jika metodenya POST untuk keamanan
+    if request.method == 'POST':
+        aktivitas.delete()
+        # Arahkan kembali ke halaman daftar
+        return redirect('nested_aktivitas')
+    
+    # Jika diakses via GET, bisa arahkan kembali atau tampilkan halaman konfirmasi
+    # Untuk simpelnya, kita redirect saja.
+    return redirect('nested_aktivitas')
+
+def tambah_aktivitas_implementasi(request, project_id):
+    
+    project = get_object_or_404(Project, pk=project_id)
+    
+    if request.method == 'POST':
+        # Ambil data dari form
+        model_type = request.POST.get('model_type')
+        algorithm_used = request.POST.get('algorithm_used')
+        hyperparameters = request.POST.get('hyperparameters')
+
+        # Buat objek baru di database
+        AktivitasImplementasi.objects.create(
+            project=project,
+            model_type=model_type,
+            algorithm_used=algorithm_used,
+            hyperparameters=hyperparameters
+        )
+        
+        # Karena ini langkah terakhir, arahkan ke halaman daftar project
+        return redirect('nested') # Ganti jika nama URL daftar project Anda berbeda
+
+    # Jika bukan POST, tampilkan halaman dengan daftar aktivitas yang sudah ada
+    aktivitas_list = AktivitasImplementasi.objects.filter(project=project)
+    context = {
+        'project': project,
+        'aktivitas_list': aktivitas_list,
+    }
+    return render(request, 'aktivitas_implementasi.html', context)
+
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    renderer_classes = [JSONRenderer]
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+
+class DataLingkunganViewSet(viewsets.ModelViewSet):
+    queryset = DataLingkungan.objects.all()
+    serializer_class = DataLingkunganSerializer
+
+class CatatanPemeliharaanViewSet(viewsets.ModelViewSet):
+    queryset = CatatanPemeliharaan.objects.all()
+    serializer_class = CatatanPemeliharaanSerializer
+
+class DataTransaksiViewSet(viewsets.ModelViewSet):
+    queryset = DataTransaksi.objects.all()
+    serializer_class = DataTransaksiSerializer
+
+class KinerjaViewSet(viewsets.ModelViewSet):
+    queryset = Kinerja.objects.all()
+    serializer_class = KinerjaSerializer
+
+class AktivitasImplementasiViewSet(viewsets.ModelViewSet):
+    queryset = AktivitasImplementasi.objects.all()
+    serializer_class = AktivitasImplementasiSerializer
+
+
+class ProjectListNestedAPIView(generics.ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectDetailSerializer

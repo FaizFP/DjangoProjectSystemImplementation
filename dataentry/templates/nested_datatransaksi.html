@@ -214,7 +214,7 @@
     <div class="content">
       <div class="tabs">
         <div><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none;">Project</a></div>
-        <div>Aktivitas Perangkat Lunak</div>
+        <div><a href="{% url 'nested_aktivitas' %}" style="color: inherit; text-decoration: none;">Aktivitas Implementasi</a></div>
         <div><a href="{% url 'nested_catatan' %}" style="color: inherit; text-decoration: none;">Catatan Pemeliharaan</a></div>
         <div><a href="{% url 'nested_lingkungan' %}" style="color: inherit; text-decoration: none;">Data Lingkungan</a></div>
         <div class="active">Data Transaksi</div>
@@ -272,6 +272,10 @@
           {% endfor %}
         </tbody>
       </table>
+    <div style="margin-top: 20px; text-align: center;">
+      <a href="{% url 'datatransaksi' %}" class="add-btn"
+                    style="background: #788066; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: bold;">Add</a>
+    </div>
     </div>
   </div>
   <script>

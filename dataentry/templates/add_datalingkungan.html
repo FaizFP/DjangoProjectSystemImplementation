@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Project</title>
+  <title>Tambah Data Lingkungan</title>
   <style>
     body {
       margin: 0;
@@ -27,18 +27,6 @@
       margin: 0;
       font-weight: normal;
       font-size: 25px;
-    }
-
-    .user {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .user img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
     }
 
     .container {
@@ -160,61 +148,64 @@
 </head>
 <body>
 
-  <header>
-    <h2>System Implementation</h2>
-    <div class="user">
-    </div>
-  </header>
+<header>
+  <h2>Tambah Data Lingkungan</h2>
+</header>
 
-  <div class="container">
-    <div class="sidebar">
-      <ul class="menu">
-        <li>
-          <a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a>
-        </li>
-        <li class="dropdown-toggle active" onclick="toggleDropdownMenu(this)">
-          Project <span style="float: right;">▼</span>
-          <ul class="submenu">
-            <li><a href="{% url 'project_form' %}" style="color: inherit; text-decoration: none; display: block;">Project</a></li>
-            <li><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none; display: block;">Nested Data</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="{% url 'kinerja' %}" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a>
-        </li>
-      </ul>
-    </div>
+<div class="container">
 
-    <div class="form-container">
-      <h3>Data Lingkungan</h3>
-      <form method="POST" action="{% url 'data_lingkungan' project.id_project %}"> <!-- ubah dari project.id ke project.nama_project -->
-        {% csrf_token %}
-
-        <label for="os">Operating System</label>
-        <input type="text" id="os" name="os">
-
-        <label for="cpu">Cpu(Core)</label>
-        <input type="text" id="cpu" name="cpu">
-
-        <label for="ram">RAM</label>
-        <input type="text" id="ram" name="ram">
-
-        <label for="database">DATABASE</label>
-        <input type="text" id="database" name="database">
-
-        <button type="submit">NEXT</button>
-      </form>
-
-    </div>
+  <div class="sidebar">
+    <ul class="menu">
+      <li><a href="{% url 'dashboard' %}" style="color: inherit; text-decoration: none; display: block;">Dashboard</a></li>
+      <li class="dropdown-toggle active" onclick="toggleDropdownMenu(this)">
+        Project <span style="float: right;">▼</span>
+        <ul class="submenu">
+          <li><a href="{% url 'project_form' %}" style="color: inherit; text-decoration: none; display: block;">Project</a></li>
+          <li><a href="{% url 'nested' %}" style="color: inherit; text-decoration: none; display: block;">Nested Data</a></li>
+        </ul>
+      </li>
+      <li><a href="{% url 'kinerja' %}" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a></li>
+    </ul>
   </div>
 
-  <script>
-    function toggleDropdownMenu(element) {
-      element.classList.toggle("open");
-      const submenu = element.querySelector(".submenu");
-      submenu.style.display = submenu.style.display === "block" ? "none" : "block";
-    }
-  </script>
+  <div class="form-container">
+    <h3>Data Lingkungan</h3>
+    <form method="POST" action="{% url 'add_data_lingkungan' %}">
+      {% csrf_token %}
+
+      <label for="project">Pilih Project</label>
+      <select id="nama_project" name="nama_project" required>
+        <option value="" disabled selected>-- Pilih Project --</option>
+        {% for project in projects %}
+          <option value="{{ project.nama_project }}">{{ project.nama_project }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="os">Operating System</label>
+      <input type="text" id="os" name="os" required>
+
+      <label for="cpu">Cpu(Core)</label>
+      <input type="text" id="cpu" name="cpu" required>
+
+      <label for="ram">RAM</label>
+      <input type="text" id="ram" name="ram" required>
+
+      <label for="database">DATABASE</label>
+      <input type="text" id="database" name="database" required>
+
+      <button type="submit">Simpan</button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  function toggleDropdownMenu(element) {
+    element.classList.toggle("open");
+    const submenu = element.querySelector(".submenu");
+    submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+  }
+</script>
 
 </body>
 </html>
