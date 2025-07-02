@@ -240,7 +240,7 @@
         <tbody>
           {% for transaksi in data_transaksi_list %}
           <tr>
-            <td class="col-nama">{{ transaksi.project.nama_project }}</td>
+            <td class="col-nama">{{ transaksi.project.nama_project }} <small>({{ transaksi.project.model }})</small></td>
             <td class="col-deskripsi">{{ transaksi.deskripsi_data }}</td>
             <td class="col-file">
               {% if transaksi.input_file %}

@@ -4,8 +4,9 @@ class Project(models.Model):
     id_project = models.AutoField(primary_key=True)
     nama_project = models.CharField(max_length=255)
     model = models.CharField(max_length=255)
+    external_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
     deskripsi = models.TextField()
-    
+
     def __str__(self):
         return self.nama_project
 
@@ -16,6 +17,7 @@ class DataLingkungan(models.Model):
     database = models.CharField(max_length=100)
     cpu = models.CharField(max_length=100)
     os = models.CharField(max_length=100)
+    input_file = models.FileField(upload_to='lingkungan_files/', blank=True, null=True) # Add this line
 
 
 class CatatanPemeliharaan(models.Model):
@@ -38,11 +40,11 @@ class DataTransaksi(models.Model):
 class Kinerja(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='kinerja')
     model_performance = models.CharField(max_length=255)
-    
+
 
     def __str__(self):
         return f'Kinerja {self.project.nama_project}'
-    
+
 class AktivitasImplementasi(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='aktivitas_implementasi')
     model_type = models.CharField(max_length=255)

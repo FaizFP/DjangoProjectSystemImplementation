@@ -236,6 +236,7 @@
           <option value="database">Database</option>
           <option value="cpu">CPU</option>
           <option value="os">OS</option>
+          <option value="file">File</option>
         </select>
       </div>
       <table>
@@ -246,6 +247,7 @@
             <th class="col-database">Database</th>
             <th class="col-cpu">CPU</th>
             <th class="col-os">OS</th>
+            <th class="col-file">File</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -257,6 +259,12 @@
             <td class="col-database">{{ lingkungan.database }}</td>
             <td class="col-cpu">{{ lingkungan.cpu }}</td>
             <td class="col-os">{{ lingkungan.os }}</td>
+            <td class="col-file">
+              {% if lingkungan.input_file %}
+                <a href="{{ lingkungan.input_file.url }}" target="_blank">{{ lingkungan.input_file.name }}</a> {% else %}
+                -
+              {% endif %}
+            </td>
             <td class="action-buttons">
               <form method="POST" action="{% url 'delete_datalingkungan' lingkungan.id %}" style="display:inline;">
                 {% csrf_token %}
@@ -267,7 +275,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="6" style="text-align: center;">Belum ada data lingkungan.</td>
+            <td colspan="7" style="text-align: center;">Belum ada data lingkungan.</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -287,7 +295,7 @@
 
     function filterTableColumn() {
       var val = document.getElementById('filter-column').value;
-      var allCols = ['ram','database','cpu','os'];
+      var allCols = ['ram','database','cpu','os', 'file'];
       document.querySelectorAll('.col-nama').forEach(e=>e.style.display='');
       allCols.forEach(function(col) {
         document.querySelectorAll('.col-'+col).forEach(e=>e.style.display='');
@@ -303,4 +311,4 @@
   </script>
 </body>
 
-</html>
+</html

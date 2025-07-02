@@ -170,8 +170,7 @@
 
   <div class="form-container">
     <h3>Data Lingkungan</h3>
-    <form method="POST" action="{% url 'add_data_lingkungan' %}">
-      {% csrf_token %}
+    <form method="POST" action="{% url 'add_data_lingkungan' %}" enctype="multipart/form-data"> {% csrf_token %}
 
       <label for="project">Pilih Project</label>
       <select id="nama_project" name="nama_project" required>
@@ -193,18 +192,23 @@
       <label for="database">DATABASE</label>
       <input type="text" id="database" name="database" required>
 
-      <button type="submit">Simpan</button>
+      <label for="input_file">Upload File</label> <input type="file" id="input_file" name="input_file"> <button type="submit">Simpan</button>
     </form>
   </div>
 
 </div>
 
 <script>
-  function toggleDropdownMenu(element) {
-    element.classList.toggle("open");
-    const submenu = element.querySelector(".submenu");
-    submenu.style.display = submenu.style.display === "block" ? "none" : "block";
-  }
+    // Fungsi untuk dropdown sidebar tetap ada
+    function toggleDropdownMenu(element) {
+        element.classList.toggle("open");
+        const submenu = element.querySelector(".submenu");
+        if (submenu) {
+            submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+        }
+    }
+
+    // BAGIAN 3 YANG DIHAPUS: blok "DOMContentLoaded" untuk logika model
 </script>
 
 </body>

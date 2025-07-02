@@ -26,7 +26,7 @@
         .form-container input[readonly] { background-color: #a8a2a2; color: #555; cursor: not-allowed; }
         .form-container button { width: 100%; padding: 12px; margin-top: 25px; background-color: #ded5d4; border: none; border-radius: 20px; cursor: pointer; color: black; font-weight: bold; font-size: 16px; }
         .form-container button:hover { background-color: #c0b6b5; }
-        
+
         /* === CSS TAMBAHAN UNTUK MODAL & KAMERA === */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background-color: #e0e0e0; color: #333; padding: 20px 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; position: relative; }
@@ -64,41 +64,43 @@
                  <li><a href="#" style="color: inherit; text-decoration: none; display: block;">Kinerja Perangkat Lunak</a></li>
             </ul>
         </div>
-        
+
         <div class="main-content">
             <div id="form-wrapper">
                 <div class="form-container">
                     <h3>Edit Data Transaksi</h3>
                     <form id="main-form" method="POST" action="#" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <label for="nama_project">Nama Project</label>
-                        <input type="text" id="nama_project" name="nama_project" value="{{ transaksi.project.nama_project }}" readonly>
+                    {% csrf_token %}
+                    <label for="nama_project">Nama Project</label>
+                    <input type="text" id="nama_project" name="nama_project" value="{{ transaksi.project.nama_project }}" readonly>
 
-                        <label for="input_data">Deskripsi Data</label>
-                        <input type="text" id="input_data" name="input_data" value="{{ transaksi.deskripsi_data }}" required>
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" value="{{ transaksi.project.model }}" readonly>
+                    <label for="input_data">Deskripsi Data</label>
+                    <input type="text" id="input_data" name="input_data" value="{{ transaksi.deskripsi_data }}" required>
 
-                        <label for="upload">File/Foto</label>
-                        
-                        {% if transaksi.input_file %}
-                        <div style="margin-top:5px; margin-bottom: 10px;">
-                            <small>File saat ini: <a href="{{ transaksi.input_file.url }}" target="_blank" style="color: #87CEEB;">{{ transaksi.input_file.name|cut:'transaksi_files/' }}</a></small>
-                        </div>
-                        {% endif %}
+                    <label for="upload">File/Foto</label>
 
-                        <button type="button" onclick="openUploader()">Ganti File / Ambil Foto Baru</button>
-                        
-                        <input type="file" id="upload" name="upload" accept="image/*,.pdf,.doc,.docx" style="display: none;">
-                        
-                        <p id="file-name-display" style="margin-top: 10px; font-size: 14px; color: #90EE90; text-align: center; height: 1em;"></p>
-                        
-                        <button type="submit">UPDATE</button>
+                    {% if transaksi.input_file %}
+                    <div style="margin-top:5px; margin-bottom: 10px;">
+                        <small>File saat ini: <a href="{{ transaksi.input_file.url }}" target="_blank" style="color: #87CEEB;">{{ transaksi.input_file.name|cut:'transaksi_files/' }}</a></small>
+                    </div>
+                    {% endif %}
+
+                    <button type="button" onclick="openUploader()">Ganti File </button>
+
+                    <input type="file" id="upload" name="upload" accept="image/*,.pdf,.doc,.docx" style="display: none;">
+
+                    <p id="file-name-display" style="margin-top: 10px; font-size: 14px; color: #90EE90; text-align: center; height: 1em;"></p>
+
+                    <button type="submit">UPDATE</button>
                     </form>
                     <div style="margin-top:20px; text-align: center;">
                         <a href="{% url 'nested_datatransaksi' %}" style="color:#ded5d4; text-decoration:underline;">&larr; Kembali ke Data Transaksi</a>
                     </div>
                 </div>
             </div>
-            
+
             <div id="camera-view">
                 <video id="video" autoplay playsinline></video>
                 <canvas id="canvas" style="display:none;"></canvas>
@@ -158,7 +160,7 @@
                 fileNameDisplay.textContent = "";
             }
         });
-        
+
         // Logika Kamera
         function openCamera() {
             formWrapper.style.display = 'none';

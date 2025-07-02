@@ -10,7 +10,7 @@ class DataLingkunganForm(forms.ModelForm):
     class Meta:
         model = DataLingkungan
         # Jangan masukkan 'project' karena akan di-assign di view
-        fields = ['ram', 'database', 'cpu', 'os']
+        fields = ['ram', 'database', 'cpu', 'os','input_file']
 
 class CatatanPemeliharaanForm(forms.ModelForm):
     class Meta:

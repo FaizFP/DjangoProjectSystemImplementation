@@ -6,7 +6,7 @@
   <title>System Implementation - Final Gabungan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    /* CSS LENGKAP DARI FILE ASLI ANDA */
+    /* CSS Anda (tidak diubah) */
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
@@ -270,16 +270,21 @@
             {% csrf_token %}
             <label for="nama_project">Nama Project</label>
             <select id="nama_project" name="nama_project" required>
-              <option value="">Pilih</option>
+              <option value="" disabled selected data-model="">Pilih</option>
               {% for project in projects %}
-              <option value="{{ project.nama_project }}">{{ project.nama_project }}</option>
+                <option value="{{ project.nama_project }}" data-model="{{ project.model }}">{{ project.nama_project }}</option>
               {% endfor %}
-
             </select>
+
+            <label for="model">Model</label>
+            <input type="text" id="model" name="model" readonly style="background-color: #a8a2a2; cursor: not-allowed;" placeholder="Model akan tampil di sini">
+
             <label for="input_data">Input Data</label>
             <input type="text" id="input_data" name="input_data" placeholder="Contoh: Progres minggu ini" required>
-            <label>File/Foto</label>
-            <button type="button" onclick="openUploader()">Upload / Ambil Foto</button>
+
+            <label>File</label>
+            <button type="button" id="open-uploader-btn">Upload File</button>
+
             <input type="file" id="upload" name="upload" accept="image/*,.pdf,.doc,.docx" style="display: none;">
             <p id="file-name-display"
               style="margin-top: 10px; font-size: 14px; color: #ccc; text-align: center; height: 1em;"></p>
@@ -308,77 +313,104 @@
         <button id="trigger-camera">Gunakan Kamera</button>
       </div>
     </div>
-  </div>
+</div>
 
   <script>
-    // --- FUNGSI DARI FILE ASLI ANDA ---
-    function toggleDropdownMenu(element) {
-      element.classList.toggle("open");
-      const submenu = element.querySelector(".submenu");
-      submenu.style.display = submenu.style.display === "block" ? "none" : "block";
-    }
+  // Fungsi untuk dropdown sidebar tetap ada di luar
+  function toggleDropdownMenu(element) {
+    element.classList.toggle("open");
+    const submenu = element.querySelector(".submenu");
+    submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+      // --- SEMUA VARIABEL ---
+      const formWrapper = document.getElementById('form-wrapper');
+      const uploadModal = document.getElementById('upload-modal');
+      const hiddenFileInput = document.getElementById('upload');
+      const fileNameDisplay = document.getElementById('file-name-display');
+      const cameraView = document.getElementById('camera-view');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const projectSelect = document.getElementById('nama_project');
+      const modelInput = document.getElementById('model');
+      
+      // --- PERBAIKAN: Ambil tombol utama dengan ID ---
+      const openUploaderBtn = document.getElementById('open-uploader-btn');
 
-    // --- LOGIKA UPLOADER CANGGIH ---
-    const formWrapper = document.getElementById('form-wrapper');
-    const uploadModal = document.getElementById('upload-modal');
-    const hiddenFileInput = document.getElementById('upload');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const cameraView = document.getElementById('camera-view');
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    let stream;
 
-    // Logika Modal
-    function openUploader() { uploadModal.style.display = 'flex'; }
-    function closeUploader() { uploadModal.style.display = 'none'; }
+      let stream;
 
-    document.getElementById('trigger-file-upload').addEventListener('click', () => {
-      hiddenFileInput.click();
-      closeUploader();
-    });
-    document.getElementById('trigger-camera').addEventListener('click', () => {
-      closeUploader();
-      openCamera();
-    });
-    hiddenFileInput.addEventListener('change', function () {
-      fileNameDisplay.textContent = this.files.length > 0 ? this.files[0].name : "";
-    });
+      // --- SEMUA FUNGSI ---
+      function openUploader() { uploadModal.style.display = 'flex'; }
+      function closeUploader() { uploadModal.style.display = 'none'; }
+      
+      function openCamera() {
+        formWrapper.style.display = 'none';
+        cameraView.style.display = 'flex';
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then(mediaStream => {
+            stream = mediaStream;
+            video.srcObject = stream;
+          })
+          .catch(err => {
+            alert("Tidak bisa mengakses kamera. Pastikan Anda menggunakan HTTPS dan memberikan izin.");
+            closeCamera();
+          });
+      }
 
-    // Logika Kamera
-    function openCamera() {
-      formWrapper.style.display = 'none';
-      cameraView.style.display = 'flex';
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(mediaStream => {
-          stream = mediaStream;
-          video.srcObject = stream;
-        })
-        .catch(err => {
-          alert("Tidak bisa mengakses kamera. Pastikan Anda menggunakan HTTPS dan memberikan izin.");
-          closeCamera();
-        });
-    }
-    function closeCamera() {
-      if (stream) stream.getTracks().forEach(track => track.stop());
-      formWrapper.style.display = 'block';
-      cameraView.style.display = 'none';
-    }
-    document.getElementById('capture-btn').addEventListener('click', () => {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(blob => {
-        const fileName = `capture_${Date.now()}.png`;
-        const file = new File([blob], fileName, { type: 'image/png' });
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        hiddenFileInput.files = dataTransfer.files;
-        fileNameDisplay.textContent = fileName;
-      }, 'image/png');
-      closeCamera();
-    });
-    document.getElementById('cancel-camera-btn').addEventListener('click', closeCamera);
-  </script>
+      function closeCamera() {
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        formWrapper.style.display = 'block';
+        cameraView.style.display = 'none';
+      }
+
+
+      // --- SEMUA EVENT LISTENER ---
+      projectSelect.addEventListener('change', function() {
+          const selectedOption = this.options[this.selectedIndex];
+          const modelName = selectedOption.getAttribute('data-model');
+          modelInput.value = modelName || '';
+      });
+
+      // --- PERBAIKAN: Pasang event listener ke tombol utama ---
+      if(openUploaderBtn) {
+          openUploaderBtn.addEventListener('click', openUploader);
+      }
+
+      // Listener untuk tombol di dalam modal
+      document.getElementById('trigger-file-upload').addEventListener('click', () => {
+        hiddenFileInput.click();
+        closeUploader();
+      });
+      document.getElementById('trigger-camera').addEventListener('click', () => {
+        closeUploader();
+        openCamera();
+      });
+      document.querySelector('.close-btn').addEventListener('click', closeUploader);
+
+      // Listener untuk input file
+      hiddenFileInput.addEventListener('change', function () {
+        fileNameDisplay.textContent = this.files.length > 0 ? this.files[0].name : "";
+      });
+
+      // Listener untuk tombol kamera
+      document.getElementById('capture-btn').addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          const fileName = `capture_${Date.now()}.png`;
+          const file = new File([blob], fileName, { type: 'image/png' });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          hiddenFileInput.files = dataTransfer.files;
+          fileNameDisplay.textContent = fileName;
+        }, 'image/png');
+        closeCamera();
+      });
+      document.getElementById('cancel-camera-btn').addEventListener('click', closeCamera);
+  });
+</script>
 </body>
-
 </html>

@@ -164,8 +164,7 @@
   <header>
     <h2>System Implementation</h2>
     <div class="user">
-      <!-- Gambar/nama user opsional -->
-    </div>
+      </div>
   </header>
   <div class="container">
     <div class="sidebar">
@@ -182,24 +181,28 @@
       </ul>
     </div>
     <div class="form-container">
-      <h3>Edit Data Lingkungan</h3>
-      <form method="POST" action="#">
-        {% csrf_token %}
-        <label for="os">Operating System</label>
-        <input type="text" id="os" name="os" value="{{ lingkungan.os }}">
+  <h3>Edit Data Lingkungan</h3>
+  <form method="POST" action="#">
+    {% csrf_token %}
 
-        <label for="cpu">CPU (Core)</label>
-        <input type="text" id="cpu" name="cpu" value="{{ lingkungan.cpu }}">
 
-        <label for="ram">RAM</label>
-        <input type="text" id="ram" name="ram" value="{{ lingkungan.ram }}">
 
-        <label for="database">DATABASE</label>
-        <input type="text" id="database" name="database" value="{{ lingkungan.database }}">
 
-        <button type="submit">UPDATE</button>
-      </form>
-    </div>
+    <label for="os">Operating System</label>
+    <input type="text" id="os" name="os" value="{{ lingkungan.os }}">
+
+    <label for="cpu">CPU (Core)</label>
+    <input type="text" id="cpu" name="cpu" value="{{ lingkungan.cpu }}">
+
+    <label for="ram">RAM</label>
+    <input type="text" id="ram" name="ram" value="{{ lingkungan.ram }}">
+
+    <label for="database">DATABASE</label>
+    <input type="text" id="database" name="database" value="{{ lingkungan.database }}">
+
+    <button type="submit">UPDATE</button>
+  </form>
+</div>
   </div>
   <script>
     function toggleDropdownMenu(element) {

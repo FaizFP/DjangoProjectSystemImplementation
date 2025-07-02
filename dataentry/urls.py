@@ -1,7 +1,7 @@
 from django.urls import path,include
 from . import views
 from rest_framework.routers import DefaultRouter
-from django.contrib.auth import views as auth_views 
+from django.contrib.auth import views as auth_views
 from .views import (
     ProjectViewSet,
     DataLingkunganViewSet,
@@ -64,6 +64,7 @@ urlpatterns = [
     path('project/<int:project_id>/aktivitas-implementasi/', views.tambah_aktivitas_implementasi, name='tambah_aktivitas_implementasi'),
     path('profile/', views.user_profile_view, name='user_profile'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    
+    path('api/project-status/', views.ProjectStatusAPIView.as_view(), name='project_status_api'),
+
 
 ]
