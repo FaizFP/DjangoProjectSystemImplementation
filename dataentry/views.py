@@ -329,6 +329,7 @@ def fetch_and_save_api_projects(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Metode tidak diizinkan'})
 '''
+'''
 def fetch_and_save_api_projects(request):
     if request.method == 'POST':
         try:
@@ -418,6 +419,102 @@ def fetch_and_save_api_projects(request):
                 'created_notes': notes_created,
                 'updated_notes': notes_updated,
                 'status_api_2_code': response_status.status_code # Memberi info status code API kedua
+            })
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Metode tidak diizinkan'})
+'''
+def fetch_and_save_api_projects(request):
+    if request.method == 'POST':
+        try:
+            # === BAGIAN 1: FETCH DARI API PROYEK (Sudah Benar) ===
+            response_projects = requests.get('https://arlellll.pythonanywhere.com/api-content/training-models/')
+            if response_projects.status_code != 200:
+                return JsonResponse({'success': False, 'error': f'Gagal fetch dari API Projects. Status: {response_projects.status_code}'})
+
+            data_projects = response_projects.json()
+            created_projects = 0
+            updated_projects = 0
+
+            for item in data_projects:
+                project, project_created = Project.objects.update_or_create(
+                    external_id=item["project_detail"]["external_id"],
+                    defaults={
+                        'nama_project': item["project_detail"]["name"],
+                        'model': item["model_name"],
+                        'deskripsi': item["project_detail"]["description"],
+                    }
+                )
+
+                if project_created:
+                    created_projects += 1
+                else:
+                    updated_projects += 1
+
+                AktivitasImplementasi.objects.update_or_create(
+                    project=project,
+                    model_type=item.get("model_type", ""),
+                    algorithm_used=item.get("algorithm_used", ""),
+                    hyperparameters=item.get("hyperparameters", ""),
+                    defaults={}
+                )
+
+            # === BAGIAN 2: FETCH DARI API STATUS (INI YANG DIPERBAIKI) ===
+            response_status = requests.get('https://michaelbriant.pythonanywhere.com/api/proyek/status-only/')
+            notes_created = 0
+            notes_updated = 0
+
+            if response_status.status_code == 200:
+                data_status = response_status.json()
+
+                for item_status in data_status:
+                    # <-- PERBAIKAN 1: Gunakan 'nama_proyek' bukan 'name'
+                    project_name = item_status.get("nama_proyek")
+                    # <-- PERBAIKAN 2: Gunakan 'status_proyek' bukan 'status'
+                    status = item_status.get("status_proyek", "")
+                    # <-- PERBAIKAN 3: Gunakan 'supervisor_proyek' bukan 'supervisor'
+                    stakeholder = item_status.get("supervisor_proyek", "")
+
+                    if not project_name:
+                        continue # Lewati jika tidak ada nama proyek
+
+                    try:
+                        project_to_update = Project.objects.get(nama_project__iexact=project_name)
+
+                        # Buat atau perbarui CatatanPemeliharaan
+                        note, note_created = CatatanPemeliharaan.objects.update_or_create(
+                            project=project_to_update,
+                            # Kita bisa asumsikan satu proyek hanya punya satu catatan status dari API ini
+                            # Jadi kita cari berdasarkan proyek dan kategori 'Status API'
+                            category='', 
+                            defaults={
+                                'suggest': f'{status}',
+                                
+                                'stakeholder': stakeholder,
+                                'role': 'Supervisor' # Beri peran default
+                            }
+                        )
+
+                        if note_created:
+                            notes_created += 1
+                        else:
+                            notes_updated += 1
+
+                    except Project.DoesNotExist:
+                        print(f"Project dengan nama '{project_name}' tidak ditemukan di database lokal.")
+                        continue
+            else:
+                print(f"Gagal fetch status dari API kedua. Status: {response_status.status_code}")
+
+            return JsonResponse({
+                'success': True,
+                'created_projects': created_projects,
+                'updated_projects': updated_projects,
+                'created_notes': notes_created,
+                'updated_notes': notes_updated,
+                'status_api_2_code': response_status.status_code
             })
 
         except Exception as e:
